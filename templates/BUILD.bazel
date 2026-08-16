@@ -1,0 +1,6 @@
+# Templates consumed by the `spaghetti` module extension (//:extensions.bzl) via
+# rctx.template(). Exported so the extension's repository_rule can read them.
+exports_files(
+    ["config.BUILD.tmpl"],
+    visibility = ["//visibility:public"],
+)

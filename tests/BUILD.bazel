@@ -1,0 +1,5 @@
+"""Starlark unit tests for the spaghetti_with_bazel spine."""
+
+load(":heuristics_test.bzl", "heuristics_test_suite")
+
+heuristics_test_suite(name = "heuristics_test")

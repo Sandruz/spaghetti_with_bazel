@@ -1,0 +1,4 @@
+# raylib.BUILD is stamped onto the prebuilt raylib archive fetched by the
+# raylib_ext module extension (//:raylib_ext.bzl). Exported so http_archive's
+# build_file can reference it.
+exports_files(["raylib.BUILD"])

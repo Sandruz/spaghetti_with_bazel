@@ -1,0 +1,9 @@
+# Project-wide Bazel settings.
+
+# rules_raylib links a hermetic (zig-backed) C/C++ toolchain and registers it
+# via platform-based toolchain resolution. Enable it so the raylib target and
+# our game binary resolve that toolchain instead of the legacy autodetected one.
+common --incompatible_enable_cc_toolchain_resolution
+
+# Local user overrides (never checked in).
+try-import %workspace%/user.bazelrc

@@ -1,0 +1,3 @@
+# (nothing to ignore) — this module now holds both the reusable spaghetti_with_bazel
+# rules and the raylib game at its root. The old sample tree is a standalone
+# consumer module elsewhere; it is not nested under this repo.

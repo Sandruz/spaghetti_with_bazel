@@ -1,0 +1,98 @@
+"""Public surface (PLAN.md §3):
+  //:spaghetti_with_bazel   — the application; `bazel run //:spaghetti_with_bazel -- graph_linux.json ...` opens it
+  //:config — the label_flag the aspect classifies against (consumers override it)
+
+This module is both the reusable spaghetti_with_bazel rules (aspect.bzl, config.bzl,
+heuristics.bzl, platforms/) AND the raylib application (src/). A consumer module injects
+`spaghetti_aspect` via .bazelrc to produce the graph_<platform>.json fragments the
+application consumes — a top-down health visualizer that renders what the
+Starlark heuristics bake into JSON (no classification logic in C++).
+"""
+
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+load(":config.bzl", "spaghetti_config_sentinel")
+
+package(default_visibility = ["//visibility:private"])
+
+# The label_flag the aspect reads through its private `_policy` attr. It defaults
+# to a SENTINEL that provides no SpaghettiConfigInfo on purpose: this module
+# ships no built-in rulebook, so a consumer MUST define its own config and point
+# the flag at it with `--@spaghetti_with_bazel//:config=//:my_config`. Until then
+# the aspect fails with a setup message rather than silently using module defaults.
+spaghetti_config_sentinel(
+    name = "config_undefined",
+    visibility = ["//visibility:public"],
+)
+
+label_flag(
+    name = "config",
+    build_setting_default = ":config_undefined",
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "spaghetti_with_bazel",
+    srcs = ["src/main.cpp"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":graph",
+        ":input",
+        ":layout",
+        ":mutate",
+        ":render",
+    ],
+)
+
+cc_library(
+    name = "graph",
+    srcs = ["src/graph.cpp"],
+    hdrs = ["src/graph.h"],
+    deps = ["@nlohmann_json//:json"],
+)
+
+cc_library(
+    name = "layout",
+    srcs = ["src/layout.cpp"],
+    hdrs = ["src/layout.h"],
+    deps = [":graph"],
+)
+
+cc_library(
+    name = "render",
+    srcs = ["src/render.cpp"],
+    hdrs = ["src/render.h"],
+    deps = [
+        ":graph",
+        ":input",
+        ":layout",
+        "@raylib//:raylib",
+    ],
+)
+
+cc_library(
+    name = "input",
+    srcs = ["src/input.cpp"],
+    hdrs = ["src/input.h"],
+    deps = [
+        ":graph",
+        ":layout",
+        "@raylib//:raylib",
+    ],
+)
+
+cc_library(
+    name = "mutate",
+    srcs = ["src/mutate.cpp"],
+    hdrs = ["src/mutate.h"],
+    deps = [":graph"],
+)
+
+# Unit test for the pure buildozer-command building (§7).
+cc_test(
+    name = "mutate_test",
+    srcs = ["src/mutate_test.cc"],
+    # Static link: the hermetic zig toolchain's runfiles don't resolve the
+    # per-lib .so at test time, so fold mutate straight into the test binary.
+    linkstatic = True,
+    deps = [":mutate"],
+)
