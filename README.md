@@ -122,6 +122,8 @@ verdicts to stdout and exits instead of opening a window.
 
 A Vibecoded (raylib) application that draws the emitted JSON.
 
+<img width="1308" height="866" alt="image" src="https://github.com/user-attachments/assets/cb9910cc-f503-4a6f-bcdd-be90d225b3ba" />
+
 ### Open the App
 
 ```sh
